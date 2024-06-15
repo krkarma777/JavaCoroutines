@@ -1,40 +1,42 @@
 package com.coroutines;
 
-public class Coroutine {
-    private Runnable task;
-    private CoroutineState state;
+import java.util.ArrayDeque;
+import java.util.Objects;
+import java.util.Queue;
 
-    public Coroutine(Runnable task) {
-        this.task = task;
-        this.state = CoroutineState.NEW;
+public abstract class Coroutine {
+    private CoroutineState state = CoroutineState.NEW;
+    private Queue<Runnable> tasks = new ArrayDeque<>();
+
+    public Coroutine() {
+        tasks.offer(this::run);
+    }
+
+    protected abstract void run();
+
+    protected void yield() {
+        if (state == CoroutineState.RUNNING) {
+            state = CoroutineState.PAUSED;
+            CoroutineManager.getInstance().schedule(this);
+            throw new CoroutineYieldException();
+        }
     }
 
     public void start() {
-        state = CoroutineState.RUNNING;
-        // Code to start the coroutine
-        new Thread(task).start();
-    }
-
-    public void pause() {
-        if (state == CoroutineState.RUNNING) {
-            state = CoroutineState.PAUSED;
-            // Code to pause the coroutine
-        }
-    }
-
-    public void resume() {
-        if (state == CoroutineState.PAUSED) {
+        if (state == CoroutineState.NEW || state == CoroutineState.PAUSED) {
             state = CoroutineState.RUNNING;
-            // Code to resume the coroutine
+            try {
+                Objects.requireNonNull(tasks.poll()).run();
+            } catch (CoroutineYieldException e) {
+                // Coroutine yielded
+            }
         }
-    }
-
-    public void stop() {
-        state = CoroutineState.STOPPED;
-        // Code to stop the coroutine
     }
 
     public CoroutineState getState() {
         return state;
+    }
+
+    private static class CoroutineYieldException extends RuntimeException {
     }
 }
