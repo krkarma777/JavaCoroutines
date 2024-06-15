@@ -14,7 +14,7 @@ public abstract class Coroutine {
 
     protected abstract void run();
 
-    protected void yield() {
+    protected void pauseExecution() {
         if (state == CoroutineState.RUNNING) {
             state = CoroutineState.PAUSED;
             CoroutineManager.getInstance().schedule(this);
@@ -26,11 +26,24 @@ public abstract class Coroutine {
         if (state == CoroutineState.NEW || state == CoroutineState.PAUSED) {
             state = CoroutineState.RUNNING;
             try {
-                Objects.requireNonNull(tasks.poll()).run();
+                while (!tasks.isEmpty()) {
+                    Objects.requireNonNull(tasks.poll()).run();
+                }
             } catch (CoroutineYieldException e) {
                 // Coroutine yielded
             }
         }
+    }
+
+    public void pause() {
+        if (state == CoroutineState.RUNNING) {
+            state = CoroutineState.PAUSED;
+        }
+    }
+
+    public void stop() {
+        state = CoroutineState.STOPPED;
+        tasks.clear();
     }
 
     public CoroutineState getState() {

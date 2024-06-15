@@ -17,8 +17,26 @@ public class CoroutineManager {
         return instance;
     }
 
-    public void schedule(Coroutine coroutine) {
+    public void createCoroutine(Coroutine coroutine) {
         coroutines.offer(coroutine);
+    }
+
+    public void startCoroutine(Coroutine coroutine) {
+        coroutine.start();
+    }
+
+    public void pauseCoroutine(Coroutine coroutine) {
+        coroutine.pause();
+    }
+
+    public void stopCoroutine(Coroutine coroutine) {
+        coroutine.stop();
+    }
+
+    public void schedule(Coroutine coroutine) {
+        if (coroutine.getState() == CoroutineState.PAUSED) {
+            coroutines.offer(coroutine);
+        }
     }
 
     public void runNext() {
