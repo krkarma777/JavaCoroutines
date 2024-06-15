@@ -1,6 +1,14 @@
 package com.coroutines;
 
+/**
+ * Class representing a test implementation of a coroutine.
+ * Demonstrates the usage of Coroutine with simple state transitions.
+ */
 public class TestCoroutine extends Coroutine {
+    /**
+     * Defines the behavior of the coroutine.
+     * Prints messages and suspends execution to simulate cooperative multitasking.
+     */
     @Override
     protected void run() {
         System.out.println("Coroutine started");
@@ -10,6 +18,11 @@ public class TestCoroutine extends Coroutine {
         System.out.println("Coroutine finished");
     }
 
+    /**
+     * Main method to create and manage the test coroutine.
+     *
+     * @param args command-line arguments
+     */
     public static void main(String[] args) {
         TestCoroutine coroutine = new TestCoroutine();
         CoroutineManager manager = CoroutineManager.getInstance();
