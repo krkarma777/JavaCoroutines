@@ -4,9 +4,9 @@ public class TestCoroutine extends Coroutine {
     @Override
     protected void run() {
         System.out.println("Coroutine started");
-        pauseExecution();
+        suspend();
         System.out.println("Coroutine resumed");
-        pauseExecution();
+        suspend();
         System.out.println("Coroutine finished");
     }
 

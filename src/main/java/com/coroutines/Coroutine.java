@@ -1,7 +1,6 @@
 package com.coroutines;
 
 import java.util.ArrayDeque;
-import java.util.Objects;
 import java.util.Queue;
 
 public abstract class Coroutine {
@@ -14,11 +13,11 @@ public abstract class Coroutine {
 
     protected abstract void run();
 
-    protected void pauseExecution() {
+    protected void suspend() {
         if (state == CoroutineState.RUNNING) {
             state = CoroutineState.PAUSED;
             CoroutineManager.getInstance().schedule(this);
-            throw new CoroutineYieldException();
+            throw new CoroutineSuspendException();
         }
     }
 
@@ -27,10 +26,10 @@ public abstract class Coroutine {
             state = CoroutineState.RUNNING;
             try {
                 while (!tasks.isEmpty()) {
-                    Objects.requireNonNull(tasks.poll()).run();
+                    tasks.poll().run();
                 }
-            } catch (CoroutineYieldException e) {
-                // Coroutine yielded
+            } catch (CoroutineSuspendException e) {
+                // Coroutine suspended
             }
         }
     }
@@ -50,6 +49,6 @@ public abstract class Coroutine {
         return state;
     }
 
-    private static class CoroutineYieldException extends RuntimeException {
+    private static class CoroutineSuspendException extends RuntimeException {
     }
 }
